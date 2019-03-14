@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Three.js Animation Project, CMSC405 Proj3</title>
+
+<style>
+
+</style>
+
+<script src="three.js"></script>
+
+<script>
+
+"use strict";
+
+var scene, camera, renderer;  // Three.js rendering basics.
+var canvas;  // The canvas on which the image is rendered.
+var model;   // Contains the visible objects in the scene
+
+var geometry, material;
+// Nodes
+
+var dodecNode;
+var torusNode;
+var icoNode;
+var torusKnotNode;
+var sphereNode;
+var octNode;
+
+
+var animating = false;  // This is set to true when any animation is running.
+var dodecAnim = true;
+var torusAnim = true;
+var icoAnim = true;
+var torusKnotAnim = true;
+var sphereAnim = true;
+var octAnim = true;
+
+/*  Create the scene graph.  This function is called once, as soon as the page loads.
+
+ *  The renderer has already been created before this function is called.
+
+ */
+
+function createWorld() {
+
+  renderer.setClearColor( 0x777777);  // Set background color (0x444444 is dark gray).
+
+	scene = new THREE.Scene();
+
+	// create a camera, sitting on the positive z-axis.  The camera is not part of the scene.
+
+	camera = new THREE.PerspectiveCamera(90, canvas.width/canvas.height, 1, 30);
+
+	camera.position.z = 20;
+
+  //LIGHTS
+
+  // red light
+  var redLight = new THREE.DirectionalLight(0xff0000, .3);
+  redLight.position.set(1,0,0);
+  scene.add(redLight);
+
+  // blue light
+  var blueLight = new THREE.DirectionalLight(0x0000ff, .3);
+  blueLight.position.set(0,1,0);
+  scene.add(blueLight);
+
+  // green light
+  var greenLight = new THREE.DirectionalLight(0x00ff00, .3);
+  greenLight.position.set(1,1,0);
+  scene.add(greenLight);
+
+  // point light
+  var light = new THREE.PointLight( 0x00ff00, .5, 100 );
+  light.position.set( -50, 0, 50 );
+  scene.add( light );
+
+  // point light
+  var viewpointLight = new THREE.DirectionalLight( 0xffffff, 0.25 );  // a light to shine in the direction the camera faces
+	viewpointLight.position.set(0,0,1);  // shines down the z-axis
+	scene.add(viewpointLight);
+
+  model = new THREE.Object3D();
+
+  // OBJECTS
+
+  // #1: dodecaahedron
+	var dodec = new THREE.Mesh(
+
+	  new THREE.DodecahedronGeometry(3,0),
+		new THREE.MeshLambertMaterial({ color: 0xFF4B4B })
+	);
+
+  dodecNode = new THREE.Object3D();
+  dodecNode.add(dodec);
+  model.add(dodecNode);
+
+  // torus
+  var torus = new THREE.Mesh(
+
+    new THREE.TorusGeometry(2, 0.5, 8, 100),
+    new THREE.MeshPhongMaterial({ color: 0xFF9900 })
+  );
+
+  torus.rotation.set(2,0,0);
+  torus.position.y = -3;
+  torusNode = new THREE.Object3D();
+  torusNode.add(torus);
+  model.add(torusNode);
+
+  // yello ico
+  var ico = new THREE.Mesh(
+
+    new THREE.IcosahedronGeometry(2),
+    new THREE.MeshPhongMaterial({ color: 0xFFFF00})
+  );
+
+  ico.position.y = 5;
+  icoNode = new THREE.Object3D();
+  icoNode.add(ico);
+  model.add(icoNode);
+
+  // green torus knot
+  var torusKnot = new THREE.Mesh(
+
+    new THREE.TorusKnotGeometry(1, 0.5, 64, 8, 2, 3),
+    new THREE.MeshLambertMaterial({color: 0x79FF78 })
+  );
+
+  torusKnot.position.y = -7;
+  torusKnotNode = new THREE.Object3D();
+  torusKnotNode.add(torusKnot);
+  model.add(torusKnotNode);
+
+  // blue sphere
+  var sphere = new THREE.Mesh(
+
+    new THREE.SphereGeometry(2, 32, 32),
+    new THREE.MeshPhongMaterial({color: 0x00FFFF })
+  );
+
+  sphere.position.y = 9;
+  sphereNode = new THREE.Object3D();
+  sphereNode.add(sphere);
+  model.add(sphereNode);
+
+  // purple octahedron
+  var oct = new THREE.Mesh(
+
+    new THREE.OctahedronGeometry(2),
+    new THREE.MeshPhongMaterial({color: 0xBC59FF })
+  );
+
+  oct.position.y = -11;
+  octNode = new THREE.Object3D();
+  octNode.add(oct);
+  model.add(octNode);
+
+	model.rotation.set(0.2,0,0); // Tip it forward a bit, so we're not looking at it edge-on.
+	scene.add(model);
+} // end createWorld()
+
+/*  Render the scene.  This is called for each frame of the animation.
+
+ */
+function render() {
+    renderer.render(scene, camera);
+}
+
+/*  When an animation is in progress, this function is called just before rendering each
+
+ *  frame of the animation, to make any changes necessary in the scene graph to prepare
+
+ *  for that frame.
+
+ */
+
+function updateForFrame() {
+
+  if (dodecAnim) {
+
+    dodecNode.rotation.y +=0.01
+  }
+
+  if (torusAnim) {
+
+    torusNode.rotation.x +=0.02
+  }
+
+  if (icoAnim) {
+
+    //icoNode.rotation.x +=0.01
+    icoNode.rotation.z +=0.02
+  }
+
+  if (torusKnotAnim) {
+
+  //  torusKnotNode.rotation.x +=0.02
+    torusKnotNode.rotation.z +=0.01
+  }
+
+  if (sphereAnim) {
+
+    sphereNode.rotation.x +=0.02
+    //coneNode.rotation.y +=0.01
+  }
+
+  if (octAnim) {
+
+    octNode.rotation.x +=0.03
+    //coneNode.rotation.y +=0.01
+  }
+}
+
+//--------------------------- animation support -----------------------------------
+
+/* This function runs the animation by calling updateForFrame() then calling render().
+
+ * Finally, it arranges for itself to be called again to do the next frame.  When the
+
+ * value of animating is set to false, this function does not schedule the next frame,
+
+ * so the animation stops.
+
+ */
+function doFrame() {
+
+    if (animating) {
+
+        updateForFrame();
+        render();
+        requestAnimationFrame(doFrame);
+	}
+}
+
+/* Responds when the setting of the "Animate" checkbox is changed.  This
+
+ * function will start or stop the animation, depending on its setting.
+
+ */
+
+function doAnimateCheckbox() {
+
+  var anim = document.getElementById("animate").checked;
+
+	if (anim != animating) {
+
+		animating = anim;
+
+		if (animating) {
+			doFrame();
+		}
+	}
+}
+
+// Toggles dodecNode Animation
+function dodecCheckbox() {
+  dodecAnim = !dodecAnim;
+}
+
+// Toggles torusNode Animation
+function torusCheckbox() {
+  torusAnim = !torusAnim;
+}
+
+// Toggles icoNode Animation
+function icoCheckbox() {
+  icoAnim = !icoAnim;
+}
+
+// Toggles torusKnotNode Animation
+function torusKnotCheckbox() {
+  torusKnotAnim = !torusKnotAnim;
+}
+
+// Toggles sphereAnimation
+function sphereCheckbox() {
+  sphereAnim = !sphereAnim;
+}
+
+// Toggles octAnimation
+function octCheckbox() {
+  octAnim = !octAnim;
+}
+
+//----------------------------- keyboard support ----------------------------------
+
+/*  Responds to user's key press.  Here, it is used to rotate the model.
+
+ */
+
+function doKey(event) {
+
+	var code = event.keyCode;
+	var rotated = true;
+
+	switch( code ) {
+
+	    case 37: model.rotation.y -= 0.03;  break;    // left arrow
+	    case 39: model.rotation.y +=  0.03; break;    // right arrow
+	    case 38: model.rotation.x -= 0.03;  break;    // up arrow
+	    case 40: model.rotation.x += 0.03;  break;    // down arrow
+	    case 189: model.rotation.z -= 0.03;  break;    // minus
+	    case 187: model.rotation.z += 0.03;  break;    // plus OR equals
+	    case 32: model.rotation.set(0.2,0,0); break;  // space
+	    default: rotated = false;
+
+	}
+
+	if (rotated) {
+
+		event.preventDefault();  // Prevent keys from scrolling the page.
+
+		if (!animating) { // (if an animation is running, no need for an extra render)
+			render();
+		}
+	}
+}
+
+//----------------------------------------------------------------------------------
+
+/**
+
+ *  This init() function is called when by the onload event when the document has loaded.
+
+ */
+
+function init() {
+
+	try {
+
+	    canvas = document.getElementById("glcanvas");
+
+		renderer = new THREE.WebGLRenderer( {
+
+		    canvas: canvas,
+		    antialias: true
+		} );
+	}
+
+	catch (e) {
+
+		document.getElementById("canvas-holder").innerHTML =
+
+		         "<h3><b>Sorry, WebGL is required but is not available.</b><h3>";
+
+		return;
+	}
+
+	document.addEventListener("keydown", doKey, false);
+  document.getElementById("animate").checked = false;
+  document.getElementById("animate").onchange = doAnimateCheckbox;
+  document.getElementById("dodecAnim").checked = true;
+	document.getElementById("dodecAnim").onchange = dodecCheckbox;
+	document.getElementById("torusAnim").checked = true;
+	document.getElementById("torusAnim").onchange = torusCheckbox;
+  document.getElementById("icoAnim").checked = true;
+	document.getElementById("icoAnim").onchange = icoCheckbox;
+  document.getElementById("torusKnotAnim").checked = true;
+	document.getElementById("torusKnotAnim").onchange = torusKnotCheckbox;
+  document.getElementById("sphereAnim").checked = true;
+	document.getElementById("sphereAnim").onchange = sphereCheckbox;
+  document.getElementById("octAnim").checked = true;
+	document.getElementById("octAnim").onchange = octCheckbox;
+
+	createWorld();
+	render();
+
+} // end init()
+
+// end JavaScript
+
+</script>
+
+</head>
+
+<body onload="init()">
+
+<h2>Three.js Animation Project</h2>
+
+<p><b>Use following keys to rotate the model: [Arrows-> y and x], [+/= -/_ -> z], [Space->reset]</b></p>
+
+<p>
+
+  <label><input type="checkbox" id="animate">Start/Pause All Animation</label>
+
+</p>
+
+<p>
+
+  <label><input type="checkbox" id="dodecAnim">Dodecahedron</label>
+  <label><input type="checkbox" id="torusAnim">Torus</label>
+  <label><input type="checkbox" id="icoAnim">Icosahedron</label>
+  <label><input type="checkbox" id="torusKnotAnim">Torus Knot</label>
+  <label><input type="checkbox" id="sphereAnim">Sphere</label>
+  <label><input type="checkbox" id="octAnim">Octahedron</label>
+
+</p>
+
+<div id="canvas-holder">
+
+<canvas id="glcanvas" width="640" height="640"></canvas>
+
+</div>
+
+</body>
+
+</html>
